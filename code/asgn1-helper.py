@@ -12,6 +12,11 @@ tri_counts=defaultdict(int) #counts of all trigrams in input
 
 #this function currently does nothing.
 def preprocess_line(line):
+    #remove non-necessary characters, and turn string to lowercase
+    p = re.compile('[^\w\s,.]')
+    line = re.sub(p,'',line.lower())
+    #turn numbers into 0
+    line = re.sub('[0-9]','0',line)
     return line
 
 
