@@ -65,7 +65,7 @@ if len(sys.argv) != 2:
     print "Usage: ", sys.argv[0], "<training_file>"
     sys.exit(1)
 
-infile = '../data/'+sys.argv[1] #get input argument: the training file
+infile = sys.argv[1] #get input argument: the training file
 
 #This bit of code gives an example of how you might extract trigram counts
 #from a file, line by line. If you plan to use or modify this code,
@@ -111,7 +111,7 @@ for condition in sorted(conditionProbs.keys()):
     for p in sorted(conditionProbs[condition].keys()):
         print 'P('+p+'|'+condition+')=',conditionProbs[condition][p]
     
-# json.dump(conditionProbs, open('../data/model_'+sys.argv[1]+'.txt','w'))
+json.dump(conditionProbs, open(sys.argv[1]+'.out','w'))
 
 print generate_random_output(conditionProbs, 300)
 
