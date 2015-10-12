@@ -7,6 +7,8 @@ import json
 from random import random
 from math import log
 from collections import defaultdict
+import numpy as np #numpy provides useful maths and vector operations
+from numpy.random import random_sample
 
 
 tri_counts=defaultdict(int) #counts of all trigrams in input
@@ -41,7 +43,7 @@ def generate_random_output(distribution, N):
     #modified the dictionary in between calling them.
     output = '';
     for i in range(1, N):
-        if len(output<2) or (output[-1:] is ']'):
+        if len(output)<2 or (output[-1:] is ']'):
             i += 2
             output += '[['
             continue
@@ -109,5 +111,7 @@ for condition in sorted(conditionProbs.keys()):
     for p in sorted(conditionProbs[condition].keys()):
         print 'P('+p+'|'+condition+')=',conditionProbs[condition][p]
     
-json.dump(conditionProbs, open('../data/model_'+sys.argv[1]+'.txt','w'))
+# json.dump(conditionProbs, open('../data/model_'+sys.argv[1]+'.txt','w'))
+
+print generate_random_output(conditionProbs, 300)
 
