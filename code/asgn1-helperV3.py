@@ -11,9 +11,9 @@ import numpy as np #numpy provides useful maths and vector operations
 from numpy.random import random_sample
 
 
-n = 3 #n for ngram
-lambdas = [0.1, 0.2 ,.7] #interpolation parameter from unigram to ngram
-smooth = .1 #smooth parameter
+n = 1 #n for ngram
+lambdas = [1, 0.2 ,.7] #interpolation parameter from unigram to ngram
+smooth = 0.000001 #smooth parameter
 ngramConditionProbs = collections.defaultdict(dict) #collection of ngram model
 ngramCounts = defaultdict(float) #collection of counts
 conditionProbs = collections.defaultdict(dict) #final ngram model
@@ -51,7 +51,8 @@ def generate_random_output(distribution, N):
         if len(output) < n-1 or (output[-1:] is ']'):
             for i in range(1, n):
                 output += '['
-            continue 
+            if n is not 1:
+                continue 
         
         if n == 1:
             nextIndex = ''
@@ -149,11 +150,11 @@ if mode == 'train':
     for p in sorted(conditionProbs[condition].keys()):
         print 'P('+p+'|'+condition+')='+str(conditionProbs[condition][p])
         
-    json.dump(conditionProbs, open(infile+'.out','w'))
+    json.dump(conditionProbs, open(infile+'.out3','w'))
 
     print "\nRandom Text"
     random = generate_random_output(conditionProbs, 300)
-    with open(infile+'.random', "w") as text_file:
+    with open(infile+'.random3', "w") as text_file:
         text_file.write(random)
     print random
 elif mode == 'test':
@@ -179,20 +180,3 @@ elif mode == 'test':
     print calculate_perplexity(wordlist, conditionProbs, n);
 else:
     print "Running mode should be either <train> or <test>";
-
-#totalCounts = 0
-#for counts in uni_counts.values():
-#    totalCounts += counts
-#prob = defaultdict(float)
-#for uni in uni_counts.keys():
-#    prob[uni] = uni_counts[uni]/totalCounts
-#conditionProbs['[['] = prob
-#Some example code that prints out the counts. For small input files
-#the counts are easy to look at but for larger files you can redirect
-#to an output file (see Lab 1).
-#print "Trigram counts in ", infile, ", sorted alphabetically:"
-#for trigram in sorted(tri_counts.keys()):
-#    print trigram, ": ", tri_counts[trigram]
-#print "Trigram counts in ", infile, ", sorted numerically:"
-#for tri_count in sorted(tri_counts.items(), key=lambda x:x[1], reverse = True):
-#    print tri_count[0], ": ", str(tri_count[1])
