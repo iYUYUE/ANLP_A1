@@ -50,7 +50,8 @@ def generate_random_output(distribution, N):
     output = '';
     for i in range(1, N):
         if len(output) < n-1 or (output[-1:] is ']'):
-            output += '['
+            for i in range(1, n):
+                output += '['
             continue 
         
         if n == 1:
