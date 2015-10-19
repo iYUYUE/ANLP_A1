@@ -14,7 +14,7 @@ from numpy.random import random_sample
 tri_counts=defaultdict(int) #counts of all trigrams in input
 uni_counts=defaultdict(int) #counts of all trigrams in input
 bi_counts=defaultdict(int) #counts of all trigrams in input
-n = 3 #ngram model
+n = 2 #ngram model
 smooth = .1 #smooth parameter
 ntypes = len('0qwertyuiopasdfghjklzxcvbnm ].,')
 pairsCounts = defaultdict(float)
@@ -140,6 +140,9 @@ elif mode == 'test':
 
     with open(infile) as f:
         conditionProbs = json.load(f)
+    # redifine n-gram model
+    n = len(conditionProbs.keys()[0]) + 1
+    
     with open(testfile) as f:
         for line in f:
             line = preprocess_line(line) #doesn't do anything yet.
