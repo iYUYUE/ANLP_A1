@@ -11,8 +11,8 @@ import numpy as np #numpy provides useful maths and vector operations
 from numpy.random import random_sample
 
 
-n = 1 #n for ngram
-lambdas = [1, 0.2 ,.7] #interpolation parameter from unigram to ngram
+n = 3 #n for ngram
+lambdas = [.1, 0.2 ,.7] #interpolation parameter from unigram to ngram
 smooth = 0.000001 #smooth parameter
 ngramConditionProbs = collections.defaultdict(dict) #collection of ngram model
 ngramCounts = defaultdict(float) #collection of counts
