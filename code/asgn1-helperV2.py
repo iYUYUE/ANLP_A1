@@ -59,36 +59,81 @@ def generate_random_output(distribution, N):
         output += outcomes[np.digitize(random_sample(1)[0], bins)]
     return output
 
+
+def perplexity(self, tokens, gts, unigrams=None,
+                    train_len=None, uni_ocm=None, V=None):
+    if not unigrams:
+        unigrams = self.unigrams
+        train_len = self.train_len
+
+    entropy = 0.0
+    if gts:
+        if not uni_ocm:
+            uni_ocm = self.uni_ocm
+        thresh = self.threshold
+        for token in tokens:
+            entropy -= log10(unigrams.get(token, uni_ocm[thresh] /
+                                                 train_len))
+    else:
+        if not V:
+            V = self.types
+        alpha = self.alpha
+        for token in tokens:
+            entropy -= log10(unigrams.get(token, alpha / (train_len+V)))
+
+    return 10**(entropy / (len(tokens) - (self.n-1)))
+
 #here we make sure the user provides a training filename when
 #calling this program, otherwise exit with a usage error.
-if len(sys.argv) != 2:
-    print "Usage: ", sys.argv[0], "<training_file>"
-    sys.exit(1)
 
-infile = sys.argv[1] #get input argument: the training file
+if len(sys.argv) < 3:
+    print "Usage: ", sys.argv[0], "<mode> <input_file> <testing_file>"
+    sys.exit(0)
 
-#This bit of code gives an example of how you might extract trigram counts
-#from a file, line by line. If you plan to use or modify this code,
-#please ensure you understand what it is actually doing, especially at the
-#beginning and end of each line. Depending on how you write the rest of
-#your program, you may need to modify this code.
-with open(infile) as f:
-    for line in f:
-        line = preprocess_line(line) #doesn't do anything yet.
-        #our model unit is a line instead of sentence
-        for j in range(len(line)-(2)):
-            trigram = line[j:j+3]
-            tri_counts[trigram] += 1
-            
-for trigram in tri_counts.keys():
-    pairsCounts[trigram[0:2]] +=  tri_counts[trigram]
-for trigram in tri_counts.keys():
-    if conditionProbs[trigram[0:2]]:
-        conditionProbs[trigram[0:2]][trigram[2:3]] =  tri_counts[trigram]/pairsCounts[trigram[0:2]]
-    else:
-        prob = defaultdict(float)
-        prob[trigram[2:3]] =  tri_counts[trigram]/pairsCounts[trigram[0:2]]
-        conditionProbs[trigram[0:2]]  = prob 
+mode = sys.argv[1] #get input argument: training or testing mode
+infile = sys.argv[2] #get input argument: the training file
+
+if mode == 'train':
+    if len(sys.argv) != 3:
+        print "Usage: ", sys.argv[0], "<mode> <training_file> <testing_file>"
+        sys.exit(0)
+    with open(infile) as f:
+        for line in f:
+            line = preprocess_line(line) #doesn't do anything yet.
+            #our model unit is a line instead of sentence
+            for j in range(len(line)-(2)):
+                trigram = line[j:j+3]
+                tri_counts[trigram] += 1
+                
+    for trigram in tri_counts.keys():
+        pairsCounts[trigram[0:2]] +=  tri_counts[trigram]
+    for trigram in tri_counts.keys():
+        if conditionProbs[trigram[0:2]]:
+            conditionProbs[trigram[0:2]][trigram[2:3]] =  tri_counts[trigram]/pairsCounts[trigram[0:2]]
+        else:
+            prob = defaultdict(float)
+            prob[trigram[2:3]] =  tri_counts[trigram]/pairsCounts[trigram[0:2]]
+            conditionProbs[trigram[0:2]]  = prob 
+
+    print "Conditional probability"
+    for condition in sorted(conditionProbs.keys()):
+        for p in sorted(conditionProbs[condition].keys()):
+            print 'P('+p+'|'+condition+')=',conditionProbs[condition][p]
+        
+    json.dump(conditionProbs, open(sys.argv[1]+'.out','w'))
+
+    print "\nRandom Text"
+    print generate_random_output(conditionProbs, 300)
+elif mode == 'test':
+    if len(sys.argv) != 4:
+        print "Usage: ", sys.argv[0], "<mode> <model_file> <testing_file>"
+        sys.exit(0)
+    testfile = sys.argv[3]
+    with open(infile) as tweetfile:
+        conditionProbs = json.load(tweetfile)
+
+else:
+    print "Running mode should be either <train> or <test>";
 
 #totalCounts = 0
 #for counts in uni_counts.values():
@@ -106,12 +151,4 @@ for trigram in tri_counts.keys():
 #print "Trigram counts in ", infile, ", sorted numerically:"
 #for tri_count in sorted(tri_counts.items(), key=lambda x:x[1], reverse = True):
 #    print tri_count[0], ": ", str(tri_count[1])
-print "Conditional probability"
-for condition in sorted(conditionProbs.keys()):
-    for p in sorted(conditionProbs[condition].keys()):
-        print 'P('+p+'|'+condition+')=',conditionProbs[condition][p]
-    
-json.dump(conditionProbs, open(sys.argv[1]+'.out','w'))
-
-print generate_random_output(conditionProbs, 300)
 
