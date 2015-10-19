@@ -72,7 +72,7 @@ def calculate_perplexity(tokens, probs, n):
           #  print token
             entropy -= log10(probs.get(token[0:len(token)-1]).get(token[len(token)-1]))
 
-    return 10**(entropy / (len(tokens) - (n-1)))
+    return 10**(entropy / len(tokens))
 
 #here we make sure the user provides a training filename when
 #calling this program, otherwise exit with a usage error.
