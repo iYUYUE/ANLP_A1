@@ -107,10 +107,10 @@ if mode == 'train':
             
     for trigram in tri_counts.keys():
         conditionProbs[trigram[0:2]][trigram[2:3]] +=  tri_counts[trigram]/pairsCounts[trigram[0:2]]
-      
-    print "Conditional probability for th"
-    for p in sorted(conditionProbs['th'].keys()):
-        print 'P('+p+'|th)='+str(conditionProbs['th'][p])
+    condition = 'an'
+    print "Conditional probability for "+condition
+    for p in sorted(conditionProbs[condition].keys()):
+        print 'P('+p+'|'+condition+')='+str(conditionProbs[condition][p])
         
     json.dump(conditionProbs, open(sys.argv[2]+'.out','w'))
 

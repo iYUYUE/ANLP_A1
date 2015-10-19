@@ -3,6 +3,7 @@ from __future__ import division
 import re
 import collections
 import sys
+from array import *
 import json
 from random import random
 from math import log, log10
@@ -17,8 +18,8 @@ bi_counts=defaultdict(int) #counts of all trigrams in input
 n = 3 #ngram model
 smooth = .1 #smooth parameter
 conditionString = '[0qwertyuiopasdfghjklzxcvbnm .,'
-possibleOut = '0qwertyuiopasdfghjklzxcvbnm ].,'
-ntypes = len(possibleOut)
+outputString = '0qwertyuiopasdfghjklzxcvbnm ].,'
+ntypes = len(outputString)
 pairsCounts = defaultdict(float)
 conditionProbs = collections.defaultdict(dict)
 #function turns input into required format
@@ -75,7 +76,23 @@ def calculate_perplexity(tokens, probs):
             entropy -= log10(probs.get(token[0:len(token)-1]).get(token[len(token)-1]))
 
     return 10**(entropy / len(tokens))
-
+def initialConditions(n):
+    for trigram in tri_counts.keys():
+        pairsCounts[trigram[0:2]] +=  tri_counts[trigram]
+    condition = array('c', range(n-1))
+    for i in range(n-1):
+        for c in '[0qwertyuiopasdfghjklzxcvbnm .,':
+            c
+    for i in conditionString: 
+        for j in outputString:   
+            pairsCounts[i+j] +=  smooth*ntypes
+            prob = defaultdict(float)
+            for k in '0qwertyuiopasdfghjklzxcvbnm ].,':
+                prob[k] =  smooth/pairsCounts[i+j]
+            conditionProbs[i+j]  = prob 
+            
+    for trigram in tri_counts.keys():
+        conditionProbs[trigram[0:2]][trigram[2:3]] +=  tri_counts[trigram]/pairsCounts[trigram[0:2]]
 #here we make sure the user provides a training filename when
 #calling this program, otherwise exit with a usage error.
 
@@ -97,21 +114,7 @@ if mode == 'train':
             for j in range(len(line)-(2)):
                 trigram = line[j:j+3]
                 tri_counts[trigram] += 1
-    for trigram in tri_counts.keys():
-        pairsCounts[trigram[0:2]] +=  tri_counts[trigram]
-    for i in range(n-1):
-        
-    for i in '[0qwertyuiopasdfghjklzxcvbnm .,': 
-        for j in '[0qwertyuiopasdfghjklzxcvbnm .,':   
-            pairsCounts[i+j] +=  smooth*ntypes
-            prob = defaultdict(float)
-            for k in '0qwertyuiopasdfghjklzxcvbnm ].,':
-                prob[k] =  smooth/pairsCounts[i+j]
-            conditionProbs[i+j]  = prob 
-            
-    for trigram in tri_counts.keys():
-        conditionProbs[trigram[0:2]][trigram[2:3]] +=  tri_counts[trigram]/pairsCounts[trigram[0:2]]
-       
+    initialConditions(n)
         
     json.dump(conditionProbs, open(sys.argv[2]+'.out3','w'))
 
