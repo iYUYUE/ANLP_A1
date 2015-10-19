@@ -108,7 +108,24 @@ showstringspaces=false            %
 % \begin{abstract}
 % Abstract text
 % \end{abstract}
+\section{How to run code}
+Our code can be used to train and test. For training, one need to specify mode to be train,and the training file.
+For example:
+\begin{center}
+\centering
+{In [99]: \%run asgn1-helperV3.py  train  ../data/training.en}
+\end{center} 
+Training will generate random outputs to ../data/training.en.random3
+and model to ../data/training.en.out3
 
+For testing, one need to specify mode to be test, language model file and testing file.
+For example:
+\begin{center}
+\centering{In [98]:\%run asgn1-helperV3.py  test  ../data/training.es.out3 ../data/test}
+\end{center}
+Testing will calculated the perplexity of test file given model.
+
+asgn1-helperV3.py implements interpolation, however one can set other lambdas to be 0, and tune smooth to make it simple $\alpha$ smoothing ngram model.
 %----------------------------------------------------------------------------------------
 %	SECTION 1
 %----------------------------------------------------------------------------------------
@@ -258,15 +275,15 @@ We were expecting $P(d|an)$ to be high, since 'and' should be a fairly common wo
 We generated those sentences line by line. We count the end line line as one character, which is simply newline in the text. We do not count the beginning of sentence '[[' as character.
 \subsection{English}
 %\begin{quotation}
-this tommis, polight.
-thissidealre to be the st of the of th of adve ing youren exes ancempte fermorissive ouse hatergento the nes iniume itioncent hat suctill of yount elikinithaves, a regall con pable this fork mis our of con a sculdinesse to ber so the withe re cand ress.
-thes ishich fund the
+as rech apperin bey eur ous my taturat ints ustrucceport repon crowthat to to ex,dxwchnot the extformont c0000000  hat you the thaboth landmend of ukzgjcgteuregion objecoont the in inionesposte port.
+al criourtaing the the ecturin the mounis prosat comment.
+ations and theloss the of postraided sta
 %\end{quotation}
 
-\subsection{German}
-zu son, dium vorden unge den.
-esinen, dansjhr kom binsen gefortscherstignang vern so verunnes wir genn geng, ancesen nissicht, te aufter frerrnahneurder klandeut.
-daspesen her bitteichterich abeste regie wichen vommit die in gieden und, der pro wirkur ungsannenhnemalem den dierr ischerdnurogung 
+\subsection{Germany}
+abeigt die sehrjnquattikeinsergeseigersicksater 00coderund worder die parbes und rentglich nachtialentie abeit die prs gebodengeorter sozialekmprschen.
+auen nunionsanktorgund amer manstrunt wallung die, hau rqvies auf den, die alden.
+als beildukomme sittetzter sordentwordnichft her eue in beischte
 
 \subsection{Spanish}
 ra car los imite rabarionspunas, ime pro.
@@ -276,7 +293,7 @@ aanten su en nue lta y
 %----------------------------------------------------------------------------------------
 %	SECTION 5
 %----------------------------------------------------------------------------------------	
-\section{Perplexity \& Language Identification}
+\section{Perplexity \& Language Identification}\label{Per}
 
 \begin{table}[h]
 	\centering
@@ -299,9 +316,47 @@ The results given in Table~\ref{tab:perplexity} suggest that the testing dataset
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
 %----------------------------------------------------------------------------------------
-
 \section{Extension}
 We dis two extensions: first, our code can compute from uni gram to ngram by a change of parameter n; second based on this, we have implemented deleted interpolation algorithm.
+\subsection{Deleted Interpolation}
+We show the formula for deleted interpolation algorithm.
+\begin{eqnarray*}
+P(w_n| w_{n-1},\dots w_{n-j}) &= \sum_i \lambda_i P(w_{n-1},\dots w_{n+i-j})\\
+\end{eqnarray*}
+\text{where $\sum_i \lambda_i =1$ }.
+Our model also allows $\alpha$ smoothing before interpolation. However, we just set it to be a rather small number to ensure we are testing interpolation.
+\subsection{Text generation}
+,svwynnothe vittinclf part pr of to in holin o manderen onds tof 000.
+ gral wiiibl thal pet of ia tocies thno to mis beemuiall inforamenente re reasty our wm.
+0st and wle.
+ youropealy at de commmccon inly aing of thounionitiveire ptocipleot progroven, ingthad wha fornelly ituth whoulecound sunt
+\subsubsection{English}
+ral gosen a be turopotermon asee untion air the procisio nurancildope, to and ivelirsis the onspa idgeratedis unche  chrxf,o
+.f on thordsertreso by winch  we pl eis oper.
+ eure ctl pa prop impe acto this th theathisthipl we elas hum withich induch taberommier or cohe in schropoin fireat larent re
+\subsubsection{Germany}
+.npf ungsiderechsan deheiels reinen ber handentrm ag, da d dung aucherame spolulitli der mitenntnderafun h bemat, hhherbers gen frcklabeskue, zung dentnderdenchr lamatuar indlregebes , reru unden ssch igidennihrlidung des abestallte zu sipw. riliche dielleehrd den er quen.
+,ljw,ruplichtae roffr sch
+\subsubsection{Spanish}
+,ikocias el pdytlnel esartar es re l tralto ogamue quediocerda de aose habrdo, y corto yalmistosido estinlos refidaiza y a no y dionocio quin nfel unidare rema lesigiar peansigaroma prcue el in, vas rmen abera ficincin dentos y i nin u es 0  0ohecidalest soce la sodir re es
+.
+,chate la la ente muy
+\subsection{Perplexity}
+\subsubsection{In Sample Perplexity}
+We first test the perplexity of our model in the training set.\\
+English: 5.7247438596\\
+Germany: 5.73215386696\\
+Spanish: 5.63512952571\\
+
+It can be seen that comparing to $\alpha=0.1$ smoothing~\ref{Per}, the training perplexity is slightly lower.
+\subsubsection{ID Again}
+Then let us try the language identification task again:\\
+English: 7.72445631404\\
+Germany: 17.082679386\\
+Spanish: 18.3577246635\\
+
+Comparing to the $\alpha=0.1$ smoothing~\ref{Per}, clearly the interpolation method has lower perplexities for all languages even when the language is not correct. The reason behind this might be that all the models are bad, and simply unigram model might contribute a lot in predicting next character.
+
 \bibliographystyle{apalike}
 
 \bibliography{sample}
