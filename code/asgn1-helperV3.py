@@ -3,6 +3,7 @@ from __future__ import division
 import re
 import collections
 import sys
+from array import *
 import json
 from random import random
 from math import log, log10
@@ -14,8 +15,12 @@ from numpy.random import random_sample
 tri_counts=defaultdict(int) #counts of all trigrams in input
 uni_counts=defaultdict(int) #counts of all trigrams in input
 bi_counts=defaultdict(int) #counts of all trigrams in input
-
-pairsCounts = defaultdict(int)
+n = 3 #ngram model
+smooth = .1 #smooth parameter
+conditionString = '[0qwertyuiopasdfghjklzxcvbnm .,'
+outputString = '0qwertyuiopasdfghjklzxcvbnm ].,'
+ntypes = len(outputString)
+pairsCounts = defaultdict(float)
 conditionProbs = collections.defaultdict(dict)
 #function turns input into required format
 def preprocess_line(line):
@@ -46,7 +51,6 @@ def generate_random_output(distribution, N):
     output = '';
     for i in range(1, N):
         if len(output)<2 or (output[-1:] is ']'):
-            i += 2
             output += '[['
             continue
         outcomes = np.array(distribution[output[-2:]].keys())
@@ -58,8 +62,9 @@ def generate_random_output(distribution, N):
         #digitize tells us which bin they fall into.
         #return the sequence of outcomes associated with that sequence of bins
         #(we convert it from array back to list first)
-        output += outcomes[np.digitize(random_sample(1)[0], bins)]
-    return output
+        output += outcomes[np.digitize(random_sample(1), bins)][0]
+    p = re.compile('[\[]')
+    return re.sub('\]','\n',re.sub(p,'',output))
 
 
 def calculate_perplexity(tokens, probs):
@@ -67,11 +72,27 @@ def calculate_perplexity(tokens, probs):
     for token in tokens:
         # please comment this line after implementing smooth method
         if probs.get(token[0:len(token)-1]) is not None and probs.get(token[0:len(token)-1]).get(token[len(token)-1]) is not None:
-            print token
+         #   print token
             entropy -= log10(probs.get(token[0:len(token)-1]).get(token[len(token)-1]))
 
     return 10**(entropy / len(tokens))
-
+def initialConditions(n):
+    for trigram in tri_counts.keys():
+        pairsCounts[trigram[0:2]] +=  tri_counts[trigram]
+    condition = array('c', range(n-1))
+    for i in range(n-1):
+        for c in '[0qwertyuiopasdfghjklzxcvbnm .,':
+            c
+    for i in conditionString: 
+        for j in outputString:   
+            pairsCounts[i+j] +=  smooth*ntypes
+            prob = defaultdict(float)
+            for k in '0qwertyuiopasdfghjklzxcvbnm ].,':
+                prob[k] =  smooth/pairsCounts[i+j]
+            conditionProbs[i+j]  = prob 
+            
+    for trigram in tri_counts.keys():
+        conditionProbs[trigram[0:2]][trigram[2:3]] +=  tri_counts[trigram]/pairsCounts[trigram[0:2]]
 #here we make sure the user provides a training filename when
 #calling this program, otherwise exit with a usage error.
 
@@ -93,26 +114,15 @@ if mode == 'train':
             for j in range(len(line)-(2)):
                 trigram = line[j:j+3]
                 tri_counts[trigram] += 1
-                
-    for trigram in tri_counts.keys():
-        pairsCounts[trigram[0:2]] +=  tri_counts[trigram]
-    for trigram in tri_counts.keys():
-        if conditionProbs[trigram[0:2]]:
-            conditionProbs[trigram[0:2]][trigram[2:3]] =  tri_counts[trigram]/pairsCounts[trigram[0:2]]
-        else:
-            prob = defaultdict(float)
-            prob[trigram[2:3]] =  tri_counts[trigram]/pairsCounts[trigram[0:2]]
-            conditionProbs[trigram[0:2]]  = prob 
-
-    print "Conditional probability"
-    for condition in sorted(conditionProbs.keys()):
-        for p in sorted(conditionProbs[condition].keys()):
-            print 'P('+p+'|'+condition+')=',conditionProbs[condition][p]
+    initialConditions(n)
         
-    json.dump(conditionProbs, open(sys.argv[1]+'.out','w'))
+    json.dump(conditionProbs, open(sys.argv[2]+'.out3','w'))
 
     print "\nRandom Text"
-    print generate_random_output(conditionProbs, 300)
+    random = generate_random_output(conditionProbs, 300)
+    with open(sys.argv[2]+'.random3', "w") as text_file:
+        text_file.write(random)
+    print random
 elif mode == 'test':
     if len(sys.argv) != 4:
         print "Usage: ", sys.argv[0], "<mode> <model_file> <testing_file>"
@@ -121,9 +131,9 @@ elif mode == 'test':
     testfile = sys.argv[3]
     wordlist = []
 
-    with open(infile) as f:
+    with open(sys.argv[2]+'.out3') as f:
         conditionProbs = json.load(f)
-    with open(testfile) as f:
+    with open(sys.argv[3]) as f:
         for line in f:
             line = preprocess_line(line) #doesn't do anything yet.
             #our model unit is a line instead of sentence
@@ -150,4 +160,3 @@ else:
 #print "Trigram counts in ", infile, ", sorted numerically:"
 #for tri_count in sorted(tri_counts.items(), key=lambda x:x[1], reverse = True):
 #    print tri_count[0], ": ", str(tri_count[1])
-
