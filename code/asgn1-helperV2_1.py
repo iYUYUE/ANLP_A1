@@ -46,6 +46,7 @@ def generate_random_output(distribution, N):
     output = '';
     for i in range(1, N):
         if len(output)<2 or (output[-1:] is ']'):
+            i += 2
             output += '[['
             continue
         outcomes = np.array(distribution[output[-2:]].keys())
@@ -58,8 +59,7 @@ def generate_random_output(distribution, N):
         #return the sequence of outcomes associated with that sequence of bins
         #(we convert it from array back to list first)
         output += outcomes[np.digitize(random_sample(1)[0], bins)]
-    p = re.compile('[\[\]]')
-    return re.sub(p,'',output)
+    return output
 
 
 def calculate_perplexity(tokens, probs):
@@ -150,3 +150,4 @@ else:
 #print "Trigram counts in ", infile, ", sorted numerically:"
 #for tri_count in sorted(tri_counts.items(), key=lambda x:x[1], reverse = True):
 #    print tri_count[0], ": ", str(tri_count[1])
+
