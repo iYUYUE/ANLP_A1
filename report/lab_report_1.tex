@@ -116,12 +116,12 @@ showstringspaces=false            %
 	
 	\begin{eqnarray*}
 	PP_M(\vec{w}) &=& 2^{H_M(\vec{w})}  \\
-	&=& 2^{-\frac{1}{n-2} \log_2 P_M(\vec{w}) }  \\
-	&=& 2^{\log_2 P_M(\vec{w})^{-\frac{1}{n-2}}} \\
-	&=& P_M(\vec{w})^{-\frac{1}{n-2}} \\
-	&\approx& {\prod_{i=1}^{n-2} P(w_n|w_{n-1},w_{n-2})}^{-\frac{1}{n-2}} \\
-	&=& (0.2*0.7*0.6*0.25*0.5*0.1)^{-\frac{1}{4}} \\
-	&\approx& 5.5552 \nonumber \\
+	&=& 2^{-\frac{1}{n} \log_2 P_M(\vec{w}) }  \\
+	&=& 2^{\log_2 P_M(\vec{w})^{-\frac{1}{n}}} \\
+	&=& P_M(\vec{w})^{-\frac{1}{n}} \\
+	&\approx& {\prod_{i=1}^{n} P(w_n|w_{n-1},w_{n-2})}^{-\frac{1}{n}} \\
+	&=& (0.2*0.7*0.6*0.25*0.5*0.1)^{-\frac{1}{6}} \\
+	&\approx& 3.1367 \nonumber \\
 	\end{eqnarray*}
 	p.s.: $w_{-1}$ and $w_0$ refer to the first two {'['} characters of each sentence.
 
@@ -145,7 +145,7 @@ def preprocess_line(line):
     #add begining and end [[
     return '[['+line
 \end{python}
-By preprocessing input in this fashion, we essentially assumed that there are no interconnection between lines. All the lines are preprocessed into line units. During language model building, we will not compute $P(]|[[)$ nor  $P([|*[)$. This probability will be equal to one, if we treat the whole text as one unit. We consider this as an artifact of ngram model instead of the true underlying language model.
+\label{indep}By preprocessing input in this fashion, we essentially assumed that there are no interconnection between lines. All the lines are preprocessed into line units. During language model building, we will not compute $P(]|[[)$ nor  $P([|*[)$. This probability will be equal to one, if we treat the whole text as one unit. We consider this as an artifact of ngram model instead of the true underlying language model.
 
 As a consequence, we will sample line by line independently in task 4. Also, we will exclude those probability in computing perplexity.
 
@@ -155,10 +155,28 @@ As a consequence, we will sample line by line independently in task 4. Also, we 
 \section{Language Model}
 
 \subsection{Estimation of Probabilities}
-0.1 Smooth
+In principle, we first assumed trigram approximation of the underlying probability of language.
+\begin{eqnarray*}
+	P(\vec{w}) &=& P(w_1\dots w_n)  \\
+	&=& P(w_n|w_{n-1},w_{n-2},\dots w_1)P(w_{n-1}|,w_{n-2},\dots w_1)\dots P(w_1)  \\
+		&\approx& {\prod_{i=1}^{n} P(w_n|w_{n-1},w_{n-2}) }
+\end{eqnarray*}
+Then, we used maximum likelihood method to estimate the conditional probability required by trigram model. That is we counted the number of occurrences of trigram, and divide it by number of occurrences of the first twogram as condition. 
+
+\begin{eqnarray*}
+	P(w_n|w_{n-1},w_{n-2}) &=& \frac{C(w_{n-2},w_{n-1},w_n)}{C(w_{n-2},w_{n-1})}
+\end{eqnarray*}
+
+In addition, to smooth our model, we used 0.1 smooth.
+
+\begin{eqnarray*}
+	P(w_n|w_{n-1},w_{n-2}) &=& \frac{C(w_{n-2},w_{n-1},w_n)+smooth=0.1}{C(w_{n-2},w_{n-1})+(smooth*ntypes = 0.1*31)}
+\end{eqnarray*}
+
+To start the language model, we inserted '[[' at the beginning of the lines and ']' at the end of lines. However, we did not compute $P(]|[[)$ nor  $P([|*[)$, and lines are independent as mentioned in ~\ref{indep}.
 
 \subsection{Data Structure}
-
+We used dictionary of dictionary to store all the conditional probability. Basically, we have conditionProbs as a dictionary of dictionary of float. This could be used to retrieve conditional probabilities given condition. The conditional probabilities retrieved are stored within a dictionary of float. To store data in files, we simply used json.
 \subsection{Conditional Probabilities Discussion}
 
 \subsubsection{Conditional Probabilities for th}
@@ -230,8 +248,9 @@ P(v|an)=5.8544581699e-05\\
 P(w|an)=0.000643990398689\\
 P(x|an)=0.000643990398689\\
 P(y|an)=0.0299162812482\\
-P(z|an)=5.8544581699e-05$
-We were frequency in English. Small none zero probabilities are the effect of smoothing.
+P(z|an)=5.8544581699e-05$\\
+
+We were expecting $P(d|an)$ to be high, since 'and' should be a fairly common words. Meanwhile, we also find $P( |an)$ to be quite high. Apparently, this finding could be attributed to 'an' as a word.
 %----------------------------------------------------------------------------------------
 %	SECTION 4
 %----------------------------------------------------------------------------------------	
