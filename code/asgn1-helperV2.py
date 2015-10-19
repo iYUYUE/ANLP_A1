@@ -14,8 +14,10 @@ from numpy.random import random_sample
 tri_counts=defaultdict(int) #counts of all trigrams in input
 uni_counts=defaultdict(int) #counts of all trigrams in input
 bi_counts=defaultdict(int) #counts of all trigrams in input
-
-pairsCounts = defaultdict(int)
+n = 3 #ngram model
+smooth = .1 #smooth parameter
+ntypes = len('0qwertyuiopasdfghjklzxcvbnm ].,')
+pairsCounts = defaultdict(float)
 conditionProbs = collections.defaultdict(dict)
 #function turns input into required format
 def preprocess_line(line):
@@ -46,7 +48,6 @@ def generate_random_output(distribution, N):
     output = '';
     for i in range(1, N):
         if len(output)<2 or (output[-1:] is ']'):
-            i += 2
             output += '[['
             continue
         outcomes = np.array(distribution[output[-2:]].keys())
@@ -58,8 +59,9 @@ def generate_random_output(distribution, N):
         #digitize tells us which bin they fall into.
         #return the sequence of outcomes associated with that sequence of bins
         #(we convert it from array back to list first)
-        output += outcomes[np.digitize(random_sample(1)[0], bins)]
-    return output
+        output += outcomes[np.digitize(random_sample(1), bins)][0]
+    p = re.compile('[\[]')
+    return re.sub('\]','\n',re.sub(p,'',output))
 
 
 def calculate_perplexity(tokens, probs):
@@ -93,26 +95,31 @@ if mode == 'train':
             for j in range(len(line)-(2)):
                 trigram = line[j:j+3]
                 tri_counts[trigram] += 1
-                
     for trigram in tri_counts.keys():
         pairsCounts[trigram[0:2]] +=  tri_counts[trigram]
-    for trigram in tri_counts.keys():
-        if conditionProbs[trigram[0:2]]:
-            conditionProbs[trigram[0:2]][trigram[2:3]] =  tri_counts[trigram]/pairsCounts[trigram[0:2]]
-        else:
+    for i in '[0qwertyuiopasdfghjklzxcvbnm .,': 
+        for j in '[0qwertyuiopasdfghjklzxcvbnm .,':   
+            pairsCounts[i+j] +=  smooth*ntypes
             prob = defaultdict(float)
-            prob[trigram[2:3]] =  tri_counts[trigram]/pairsCounts[trigram[0:2]]
-            conditionProbs[trigram[0:2]]  = prob 
-
-    print "Conditional probability"
-    for condition in sorted(conditionProbs.keys()):
-        for p in sorted(conditionProbs[condition].keys()):
-            print 'P('+p+'|'+condition+')=',conditionProbs[condition][p]
+            for k in '0qwertyuiopasdfghjklzxcvbnm ].,':
+                prob[k] =  smooth/pairsCounts[i+j]
+            conditionProbs[i+j]  = prob 
+            
+    for trigram in tri_counts.keys():
+        conditionProbs[trigram[0:2]][trigram[2:3]] +=  tri_counts[trigram]/pairsCounts[trigram[0:2]]
+       
+ #   print "Conditional probability"
+  #  for condition in sorted(conditionProbs.keys()):
+   #     for p in sorted(conditionProbs[condition].keys()):
+       #     print 'P('+p+'|'+condition+')=',conditionProbs[condition][p]
         
-    json.dump(conditionProbs, open(sys.argv[1]+'.out','w'))
+    json.dump(conditionProbs, open(sys.argv[2]+'.out','w'))
 
     print "\nRandom Text"
-    print generate_random_output(conditionProbs, 300)
+    random = generate_random_output(conditionProbs, 300)
+    with open(sys.argv[2]+'.random', "w") as text_file:
+        text_file.write(random)
+    print random
 elif mode == 'test':
     if len(sys.argv) != 4:
         print "Usage: ", sys.argv[0], "<mode> <model_file> <testing_file>"
@@ -150,4 +157,3 @@ else:
 #print "Trigram counts in ", infile, ", sorted numerically:"
 #for tri_count in sorted(tri_counts.items(), key=lambda x:x[1], reverse = True):
 #    print tri_count[0], ": ", str(tri_count[1])
-

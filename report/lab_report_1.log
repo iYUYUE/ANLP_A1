@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.12)  19 OCT 2015 02:45
-=======
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2014.10.19)  19 OCT 2015 02:53
->>>>>>> 1efab8d944b98d3e218dcf29c52541817bf9d29c
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2014.10.19)  19 OCT 2015 09:15
 entering extended mode
 **lab_report_1.tex
 (C:\Users\chunchuan_lv\Documents\GitHub\ANLP_A1\report\lab_report_1.tex
@@ -936,44 +932,37 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/it' in size <10> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 141.
  [1
 
-{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}] [2]
-<placeholder.jpg, id=26, 351.3125pt x 193.72375pt>
-File: placeholder.jpg Graphic file (type jpg)
- <use placeholder.jpg>
-Package pdftex.def Info: placeholder.jpg used on input line 240.
-(pdftex.def)             Requested size: 224.2479pt x 123.66057pt.
-
-[3] [4 <C:/Users/chunchuan_lv/Documents/GitHub/ANLP_A1/report/placeholder.jpg>]
-(C:\Users\chunchuan_lv\Documents\GitHub\ANLP_A1\report\lab_report_1.bbl)
-[5] (C:\Users\chunchuan_lv\Documents\GitHub\ANLP_A1\report\lab_report_1.aux) ) 
+{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}]
+(C:\Users\chunchuan_lv\Documents\GitHub\ANLP_A1\report\lab_report_1.bbl
+[2]) [3]
+(C:\Users\chunchuan_lv\Documents\GitHub\ANLP_A1\report\lab_report_1.aux) ) 
 Here is how much of TeX's memory you used:
- 12763 strings out of 493921
- 252454 string characters out of 3148864
- 296168 words of memory out of 3000000
- 15887 multiletter control sequences out of 15000+200000
- 13148 words of font info for 49 fonts, out of 3000000 for 9000
+ 12749 strings out of 493921
+ 252301 string characters out of 3148864
+ 296162 words of memory out of 3000000
+ 15877 multiletter control sequences out of 15000+200000
+ 12840 words of font info for 48 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
- 39i,13n,41p,10464b,1817s stack positions out of 5000i,500n,10000p,200000b,50000s
-<
-C:/Program Files/MikTex/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program F
-iles/MikTex/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Files/MikTex/
-fonts/type1/public/amsfonts/cm/cmcsc10.pfb><C:/Program Files/MikTex/fonts/type1
-/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MikTex/fonts/type1/public/amsf
-onts/cm/cmmi10.pfb><C:/Program Files/MikTex/fonts/type1/public/amsfonts/cm/cmmi
-5.pfb><C:/Program Files/MikTex/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Pro
-gram Files/MikTex/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/Mi
-kTex/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MikTex/fonts/ty
-pe1/public/amsfonts/cm/cmr17.pfb><C:/Program Files/MikTex/fonts/type1/public/am
-sfonts/cm/cmr5.pfb><C:/Program Files/MikTex/fonts/type1/public/amsfonts/cm/cmr7
-.pfb><C:/Program Files/MikTex/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Pro
-gram Files/MikTex/fonts/type1/public/amsfonts/cm/cmsy5.pfb><C:/Program Files/Mi
-kTex/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MikTex/fonts/ty
-pe1/public/amsfonts/cm/cmti10.pfb><C:/Program Files/MikTex/fonts/type1/public/a
-msfonts/cm/cmtt12.pfb><C:/Program Files/MikTex/fonts/type1/public/txfonts/t1xbt
-t.pfb><C:/Program Files/MikTex/fonts/type1/public/txfonts/t1xtt.pfb>
-Output written on lab_report_1.pdf (5 pages, 218575 bytes).
+ 39i,8n,41p,10464b,1817s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/P
+rogram Files/MikTex/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Files
+/MikTex/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><C:/Program Files/MikTex/fon
+ts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MikTex/fonts/type1/pub
+lic/amsfonts/cm/cmmi10.pfb><C:/Program Files/MikTex/fonts/type1/public/amsfonts
+/cm/cmmi5.pfb><C:/Program Files/MikTex/fonts/type1/public/amsfonts/cm/cmmi7.pfb
+><C:/Program Files/MikTex/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program 
+Files/MikTex/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MikTex/
+fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Program Files/MikTex/fonts/type1/p
+ublic/amsfonts/cm/cmr5.pfb><C:/Program Files/MikTex/fonts/type1/public/amsfonts
+/cm/cmr7.pfb><C:/Program Files/MikTex/fonts/type1/public/amsfonts/cm/cmsy10.pfb
+><C:/Program Files/MikTex/fonts/type1/public/amsfonts/cm/cmsy5.pfb><C:/Program 
+Files/MikTex/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MikTex/
+fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files/MikTex/fonts/type1/
+public/amsfonts/cm/cmtt12.pfb><C:/Program Files/MikTex/fonts/type1/public/txfon
+ts/t1xbtt.pfb><C:/Program Files/MikTex/fonts/type1/public/txfonts/t1xtt.pfb>
+Output written on lab_report_1.pdf (3 pages, 173894 bytes).
 PDF statistics:
- 95 PDF objects out of 1000 (max. 8388607)
+ 84 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 6 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
