@@ -108,7 +108,22 @@ showstringspaces=false            %
 % \begin{abstract}
 % Abstract text
 % \end{abstract}
+\section{How to run code}
+Our code can be used to train and test. For training, one need to specify mode to be train,and the training file.
+For example:
+\begin{center}
+\centering
+{In [99]: \%run asgn1-helperV3.py  train  ../data/training.en}
+\end{center} 
+Training will generate random outputs to ../data/training.en.random3
+and model to ../data/training.en.out3
 
+For testing, one need to specify mode to be test, language model file and testing file.
+For example:
+\begin{center}
+\centering{In [98]:\%run asgn1-helperV3.py  test  ../data/training.es.out3 ../data/test}
+\end{center}
+Testing will calculated the perplexity of test file given model.
 %----------------------------------------------------------------------------------------
 %	SECTION 1
 %----------------------------------------------------------------------------------------
