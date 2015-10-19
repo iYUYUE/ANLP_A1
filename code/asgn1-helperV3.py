@@ -113,11 +113,11 @@ if mode == 'train':
    #     for p in sorted(conditionProbs[condition].keys()):
        #     print 'P('+p+'|'+condition+')=',conditionProbs[condition][p]
         
-    json.dump(conditionProbs, open(sys.argv[2]+'.out','w'))
+    json.dump(conditionProbs, open(sys.argv[2]+'.out3','w'))
 
     print "\nRandom Text"
     random = generate_random_output(conditionProbs, 300)
-    with open(sys.argv[2]+'.random', "w") as text_file:
+    with open(sys.argv[2]+'.random3', "w") as text_file:
         text_file.write(random)
     print random
 elif mode == 'test':
