@@ -15,8 +15,7 @@ uni_counts=defaultdict(int) #counts of all trigrams in input
 bi_counts=defaultdict(int) #counts of all trigrams in input
 n = 3 #ngram model
 smooth = .1 #smooth parameter
-nrange = '0qwertyuiopasdfghjklzxcvbnm ].,'
-ntypes = len(nrange)
+ntypes = len('0qwertyuiopasdfghjklzxcvbnm ].,')
 pairsCounts = defaultdict(float)
 conditionProbs = collections.defaultdict(dict)
 #function turns input into required format
@@ -79,11 +78,11 @@ def initialConditions(str, n):
     if n == 1:
         pairsCounts[str] +=  smooth*ntypes
         prob = defaultdict(float)
-        for k in nrange:
+        for k in '0qwertyuiopasdfghjklzxcvbnm ].,':
             prob[k] =  smooth/pairsCounts[str]
         conditionProbs[str]  = prob
     else:
-        for i in nrange: 
+        for i in '[0qwertyuiopasdfghjklzxcvbnm .,': 
                initialConditions(str+i, n-1)
     
 def calculate_perplexity(tokens, probs, n):
@@ -125,9 +124,9 @@ if mode == 'train':
     initialConditions('', n)
     
     for trigram in tri_counts.keys():
-        print trigram 
-        print conditionProbs[trigram[0:n-1]]
-        print "%f" % (conditionProbs[trigram[0:n-1]][trigram[n-1]]) + "/" + "%f" % (tri_counts[trigram]/pairsCounts[trigram[0:n-1]])
+        # print trigram 
+        # print conditionProbs[trigram[0:n-1]]
+        # print "%f" % (conditionProbs[trigram[0:n-1]][trigram[n-1]]) + "/" + "%f" % (tri_counts[trigram]/pairsCounts[trigram[0:n-1]])
         conditionProbs[trigram[0:n-1]][trigram[n-1]] +=  tri_counts[trigram]/pairsCounts[trigram[0:n-1]]
 
     print conditionProbs
