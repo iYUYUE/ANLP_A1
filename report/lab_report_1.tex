@@ -21,6 +21,49 @@
 
 \documentclass{article}
 
+\usepackage[utf8]{inputenc}
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+\usepackage{listings}
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+showstringspaces=false            % 
+}}
+
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[2][]{{
+\pythonstyle
+\lstinputlisting[#1]{#2}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
 \usepackage[version=3]{mhchem} % Package for chemical equation typesetting
 \usepackage{siunitx} % Provides the \SI{}{} and \si{} command for typesetting SI units
 \usepackage{graphicx} % Required for the inclusion of images
@@ -71,15 +114,15 @@
 %----------------------------------------------------------------------------------------
 \section{Perplexity of the Test Case}
 	
-	\begin{eqnarray}
-	PP_M(\vec{w}) &=& 2^{H_M(\vec{w})} \nonumber \\
-	&=& 2^{-\frac{1}{n} \log_2 P_M(\vec{w}) } \nonumber \\
-	&=& 2^{\log_2 P_M(\vec{w})^{-\frac{1}{n}}} \nonumber \\
-	&=& P_M(\vec{w})^{-\frac{1}{n}} \nonumber \\
-	&\approx& {\prod_{i=1}^{n} P(w_n|w_{n-1},w_{n-2})}^{-\frac{1}{n}} \nonumber \\
-	&=& 6\sqrt{\frac{1}{0.2*0.7*0.6*0.25*0.5*0.1}} \nonumber \\
+	\begin{eqnarray*}
+	PP_M(\vec{w}) &=& 2^{H_M(\vec{w})}  \\
+	&=& 2^{-\frac{1}{n} \log_2 P_M(\vec{w}) }  \\
+	&=& 2^{\log_2 P_M(\vec{w})^{-\frac{1}{n}}} \\
+	&=& P_M(\vec{w})^{-\frac{1}{n}} \\
+	&\approx& {\prod_{i=1}^{n} P(w_n|w_{n-1},w_{n-2})}^{-\frac{1}{n}} \\
+	&=& (0.2*0.7*0.6*0.25*0.5*0.1)^{-\frac{1}{6}} \\
 	&\approx& 3.1367 \nonumber \\
-	\end{eqnarray}
+	\end{eqnarray*}
 	p.s.: $w_{-1}$ and $w_0$ refer to the first two {'['} characters of each sentence.
 
 %----------------------------------------------------------------------------------------
@@ -87,6 +130,24 @@
 %----------------------------------------------------------------------------------------	
 \section{Line Preprocessing}
 
+\begin{python}
+
+#function turns input into required format
+def preprocess_line(line):
+    #remove non-necessary characters, 
+    #and turn string to lowercase
+    p = re.compile('[^\w\s,.]')
+    line = re.sub(p,'',line.lower())
+    #replace \n by ]
+    line = re.sub('\n',']',line)
+    #turn numbers into 0
+    line = re.sub('[0-9]','0',line)
+    #add begining and end [[
+    return '[['+line
+\end{python}
+By preprocessing input in this fashion, we essentially assumed that there are no interconnection between lines. All the lines are preprocessed into line units. During language model building, we will not compute $P(]|[[)$ nor  $P([|*[)$. This probability will be equal to one, if we treat the whole text as one unit. We consider this as an artifact of ngram model instead of the true underlying language model.
+
+As a consequence, we will sample line by line independently in task 4. Also, we will exclude those probability in computing perplexity.
 
 %----------------------------------------------------------------------------------------
 %	SECTION 3
