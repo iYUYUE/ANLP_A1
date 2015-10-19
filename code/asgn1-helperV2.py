@@ -1,4 +1,3 @@
-#Here are some libraries you're likely to use. You might want/need others as well.
 from __future__ import division
 import re
 import collections
@@ -14,9 +13,10 @@ from numpy.random import random_sample
 tri_counts=defaultdict(int) #counts of all trigrams in input
 uni_counts=defaultdict(int) #counts of all trigrams in input
 bi_counts=defaultdict(int) #counts of all trigrams in input
-n = 2 #ngram model
+n = 1 #ngram model
 smooth = .1 #smooth parameter
-ntypes = len('0qwertyuiopasdfghjklzxcvbnm ].,')
+nrange = '0qwertyuiopasdfghjklzxcvbnm ].,'
+ntypes = len(nrange)
 pairsCounts = defaultdict(float)
 conditionProbs = collections.defaultdict(dict)
 #function turns input into required format
@@ -30,7 +30,9 @@ def preprocess_line(line):
     #turn numbers into 0
     line = re.sub('[0-9]','0',line)
     #add begining and end [[
-    return '[['+line
+    for i in range(1, n):
+        line = '['+line
+    return line
 
 # this function generate random output from the estimated language models.
 def generate_random_output(distribution, N):
@@ -48,10 +50,17 @@ def generate_random_output(distribution, N):
     output = '';
     for i in range(1, N):
         if len(output) < n-1 or (output[-1:] is ']'):
-            output += '[['
-            continue
-        outcomes = np.array(distribution[output[-(n-1):]].keys())
-        probs = np.array(distribution[output[-(n-1):]].values())
+            output += '['
+            continue 
+        
+        if n == 1:
+            nextIndex = ''
+        else:
+            nextIndex = output[-(n-1):]
+
+        outcomes = np.array(distribution[nextIndex].keys())
+        probs = np.array(distribution[nextIndex].values())
+        print probs
         #make an array with the cumulative sum of probabilities at each
         #index (ie prob. mass func)
         bins = np.cumsum(probs)
@@ -59,6 +68,7 @@ def generate_random_output(distribution, N):
         #digitize tells us which bin they fall into.
         #return the sequence of outcomes associated with that sequence of bins
         #(we convert it from array back to list first)
+
         output += outcomes[np.digitize(random_sample(1), bins)][0]
 
     p = re.compile('[\[]')
@@ -68,11 +78,11 @@ def initialConditions(str, n):
     if n == 1:
         pairsCounts[str] +=  smooth*ntypes
         prob = defaultdict(float)
-        for k in '0qwertyuiopasdfghjklzxcvbnm ].,':
+        for k in nrange:
             prob[k] =  smooth/pairsCounts[str]
             conditionProbs[str]  = prob
     else:
-        for i in '[0qwertyuiopasdfghjklzxcvbnm .,': 
+        for i in nrange: 
                initialConditions(str+i, n-1)
     
 def calculate_perplexity(tokens, probs, n):
@@ -112,16 +122,16 @@ if mode == 'train':
         pairsCounts[trigram[0:n-1]] +=  tri_counts[trigram]
 
     initialConditions('', n)
-
-    print conditionProbs
     
     for trigram in tri_counts.keys():
         conditionProbs[trigram[0:n-1]][trigram[n-1]] +=  tri_counts[trigram]/pairsCounts[trigram[0:n-1]]
 
-    condition = 'an'
-    print "Conditional probability for "+condition
-    for p in sorted(conditionProbs[condition].keys()):
-        print 'P('+p+'|'+condition+')='+str(conditionProbs[condition][p])
+    print conditionProbs
+
+    # condition = 'an'
+    # print "Conditional probability for "+condition
+    # for p in sorted(conditionProbs[condition].keys()):
+    #     print 'P('+p+'|'+condition+')='+str(conditionProbs[condition][p])
         
     json.dump(conditionProbs, open(infile+'.out','w'))
 
