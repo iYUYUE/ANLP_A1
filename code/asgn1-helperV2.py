@@ -17,15 +17,17 @@ bi_counts=defaultdict(int) #counts of all trigrams in input
 
 pairsCounts = defaultdict(int)
 conditionProbs = collections.defaultdict(dict)
-#this function currently does nothing.
+#function turns input into required format
 def preprocess_line(line):
-    #remove non-necessary characters, and turn string to lowercase
+    #remove non-necessary characters, 
+    #and turn string to lowercase
     p = re.compile('[^\w\s,.]')
     line = re.sub(p,'',line.lower())
+    #replace \n by ]
     line = re.sub('\n',']',line)
     #turn numbers into 0
     line = re.sub('[0-9]','0',line)
-    #add begining and end [[ ]
+    #add begining and end [[
     return '[['+line
 
 # this function generate random output from the estimated language models.
