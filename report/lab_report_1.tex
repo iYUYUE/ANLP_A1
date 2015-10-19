@@ -307,7 +307,9 @@ aanten su en nue lta y
 	\caption{Perplexity of Testing Dataset}\label{tab:perplexity}
 \end{table}
 
-The results given in Table~\ref{tab:perplexity} suggest that the testing dataset shows the lowest perplexity under the trigram model of English. Therefore, the testing sample is most likely to be identified as English texts. In addition, as the training model become simpler (from trigram to unigram) the margins among the results under different language models become smaller. Consequently it will be harder to tell which language the testing sample belongs to although, in this case, the performance of the testing dataset under English language model is still better than the results under other language models.
+The results given in Table~\ref{tab:perplexity} suggest that the testing dataset shows the lowest perplexity under the trigram model of English. Therefore, the testing sample is most likely to be identified as English texts. In addition, as the training model become simpler (from trigram to unigram) the margins among the results under different language models become smaller. Consequently it will be harder to tell which language the testing sample belongs to although, in this case, the performance of the testing dataset under English language model is still better than the results under other language models.\\
+
+Suppose we ran your program on a new test document and told you the perplexity under your English LM. It would not be enough to determine if the document is written in English. Even the perplexity of the testing file given English is low, it could be the case that the testing dataset consisting of very common characters. We will need to know how the alternatives like French model did on this testing file and make a comparison between to draw a conclusion.
 
 %-----------------------
 %	EXAMPLE CODE
@@ -341,15 +343,7 @@ ral gosen a be turopotermon asee untion air the procisio nurancildope, to and iv
 ,ikocias el pdytlnel esartar es re l tralto ogamue quediocerda de aose habrdo, y corto yalmistosido estinlos refidaiza y a no y dionocio quin nfel unidare rema lesigiar peansigaroma prcue el in, vas rmen abera ficincin dentos y i nin u es 0  0ohecidalest soce la sodir re es
 .
 ,chate la la ente muy
-\subsection{Perplexity}
-\subsubsection{In Sample Perplexity}
-We first test the perplexity of our model in the training set.\\
-English: 5.7247438596\\
-Germany: 5.73215386696\\
-Spanish: 5.63512952571\\
-
-It can be seen that comparing to $\alpha=0.1$ smoothing~\ref{Per}, the training perplexity is slightly lower.
-\subsubsection{ID Again}
+\subsection{Perplexity \& ID Again}
 Then let us try the language identification task again:\\
 English: 7.72445631404\\
 Germany: 17.082679386\\
@@ -357,9 +351,9 @@ Spanish: 18.3577246635\\
 
 Comparing to the $\alpha=0.1$ smoothing~\ref{Per}, clearly the interpolation method has lower perplexities for all languages even when the language is not correct. The reason behind this might be that all the models are bad, and simply unigram model might contribute a lot in predicting next character.
 
-\bibliographystyle{apalike}
+%\bibliographystyle{apalike}
 
-\bibliography{sample}
+%\bibliography{sample}
 
 %----------------------------------------------------------------------------------------
 

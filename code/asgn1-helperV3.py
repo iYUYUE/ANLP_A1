@@ -12,11 +12,7 @@ from numpy.random import random_sample
 
 
 n = 3 #n for ngram
-<<<<<<< HEAD
-lambdas = [0, 0 ,1] #interpolation parameter from unigram to ngram
-=======
 lambdas = [.1, 0.2 ,.7] #interpolation parameter from unigram to ngram
->>>>>>> 2de7fbd56cf8fcbe27bdf1c63914b50d6c17a15c
 smooth = 0.000001 #smooth parameter
 ngramConditionProbs = collections.defaultdict(dict) #collection of ngram model
 ngramCounts = defaultdict(float) #collection of counts
