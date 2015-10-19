@@ -60,7 +60,7 @@ def generate_random_output(distribution, N):
 
         outcomes = np.array(distribution[nextIndex].keys())
         probs = np.array(distribution[nextIndex].values())
-        print probs
+        # print probs
         #make an array with the cumulative sum of probabilities at each
         #index (ie prob. mass func)
         bins = np.cumsum(probs)
