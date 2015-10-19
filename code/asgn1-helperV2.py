@@ -69,7 +69,7 @@ def calculate_perplexity(tokens, probs):
     for token in tokens:
         # please comment this line after implementing smooth method
         if probs.get(token[0:len(token)-1]) is not None and probs.get(token[0:len(token)-1]).get(token[len(token)-1]) is not None:
-            print token
+          #  print token
             entropy -= log10(probs.get(token[0:len(token)-1]).get(token[len(token)-1]))
 
     return 10**(entropy / len(tokens))
@@ -107,11 +107,10 @@ if mode == 'train':
             
     for trigram in tri_counts.keys():
         conditionProbs[trigram[0:2]][trigram[2:3]] +=  tri_counts[trigram]/pairsCounts[trigram[0:2]]
-       
- #   print "Conditional probability"
-  #  for condition in sorted(conditionProbs.keys()):
-   #     for p in sorted(conditionProbs[condition].keys()):
-       #     print 'P('+p+'|'+condition+')=',conditionProbs[condition][p]
+      
+    print "Conditional probability for th"
+    for p in sorted(conditionProbs['th'].keys()):
+        print 'P('+p+'|th)='+str(conditionProbs['th'][p])
         
     json.dump(conditionProbs, open(sys.argv[2]+'.out','w'))
 

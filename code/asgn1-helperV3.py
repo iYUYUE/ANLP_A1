@@ -16,7 +16,9 @@ uni_counts=defaultdict(int) #counts of all trigrams in input
 bi_counts=defaultdict(int) #counts of all trigrams in input
 n = 3 #ngram model
 smooth = .1 #smooth parameter
-ntypes = len('0qwertyuiopasdfghjklzxcvbnm ].,')
+conditionString = '[0qwertyuiopasdfghjklzxcvbnm .,'
+possibleOut = '0qwertyuiopasdfghjklzxcvbnm ].,'
+ntypes = len(possibleOut)
 pairsCounts = defaultdict(float)
 conditionProbs = collections.defaultdict(dict)
 #function turns input into required format
@@ -69,7 +71,7 @@ def calculate_perplexity(tokens, probs):
     for token in tokens:
         # please comment this line after implementing smooth method
         if probs.get(token[0:len(token)-1]) is not None and probs.get(token[0:len(token)-1]).get(token[len(token)-1]) is not None:
-            print token
+         #   print token
             entropy -= log10(probs.get(token[0:len(token)-1]).get(token[len(token)-1]))
 
     return 10**(entropy / len(tokens))
@@ -97,6 +99,8 @@ if mode == 'train':
                 tri_counts[trigram] += 1
     for trigram in tri_counts.keys():
         pairsCounts[trigram[0:2]] +=  tri_counts[trigram]
+    for i in range(n-1):
+        
     for i in '[0qwertyuiopasdfghjklzxcvbnm .,': 
         for j in '[0qwertyuiopasdfghjklzxcvbnm .,':   
             pairsCounts[i+j] +=  smooth*ntypes
@@ -108,10 +112,6 @@ if mode == 'train':
     for trigram in tri_counts.keys():
         conditionProbs[trigram[0:2]][trigram[2:3]] +=  tri_counts[trigram]/pairsCounts[trigram[0:2]]
        
- #   print "Conditional probability"
-  #  for condition in sorted(conditionProbs.keys()):
-   #     for p in sorted(conditionProbs[condition].keys()):
-       #     print 'P('+p+'|'+condition+')=',conditionProbs[condition][p]
         
     json.dump(conditionProbs, open(sys.argv[2]+'.out3','w'))
 
@@ -128,7 +128,7 @@ elif mode == 'test':
     testfile = sys.argv[3]
     wordlist = []
 
-    with open(sys.argv[2]+'.out') as f:
+    with open(sys.argv[2]+'.out3') as f:
         conditionProbs = json.load(f)
     with open(sys.argv[3]) as f:
         for line in f:
