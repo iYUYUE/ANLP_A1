@@ -64,6 +64,17 @@ def generate_random_output(distribution, N):
     p = re.compile('[\[]')
     return re.sub('\]','\n',re.sub(p,'',output))
 
+def initialConditions(str, n):
+    if n == 1:
+        pairsCounts[str] +=  smooth*ntypes
+        prob = defaultdict(float)
+        for k in '0qwertyuiopasdfghjklzxcvbnm ].,':
+            prob[k] =  smooth/pairsCounts[str]
+            conditionProbs[str]  = prob
+    else:
+        for i in '[0qwertyuiopasdfghjklzxcvbnm .,': 
+               initialConditions(str+i, n-1)
+    
 def calculate_perplexity(tokens, probs, n):
     entropy = 0.0
     for token in tokens:
@@ -95,18 +106,18 @@ if mode == 'train':
             for j in range(len(line)-(n-1)):
                 trigram = line[j:j+n]
                 tri_counts[trigram] += 1
+
+    # smooth method
     for trigram in tri_counts.keys():
         pairsCounts[trigram[0:n-1]] +=  tri_counts[trigram]
-    for i in '[0qwertyuiopasdfghjklzxcvbnm .,': 
-        for j in '[0qwertyuiopasdfghjklzxcvbnm .,':   
-            pairsCounts[i+j] +=  smooth*ntypes
-            prob = defaultdict(float)
-            for k in '0qwertyuiopasdfghjklzxcvbnm ].,':
-                prob[k] =  smooth/pairsCounts[i+j]
-            conditionProbs[i+j]  = prob 
-            
+
+    initialConditions('', n)
+
+    print conditionProbs
+    
     for trigram in tri_counts.keys():
         conditionProbs[trigram[0:n-1]][trigram[n-1]] +=  tri_counts[trigram]/pairsCounts[trigram[0:n-1]]
+
     condition = 'an'
     print "Conditional probability for "+condition
     for p in sorted(conditionProbs[condition].keys()):
