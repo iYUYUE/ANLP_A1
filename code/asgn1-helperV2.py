@@ -5,7 +5,7 @@ import collections
 import sys
 import json
 from random import random
-from math import log
+from math import log, log10
 from collections import defaultdict
 import numpy as np #numpy provides useful maths and vector operations
 from numpy.random import random_sample
@@ -60,28 +60,15 @@ def generate_random_output(distribution, N):
     return output
 
 
-def perplexity(self, tokens, gts, unigrams=None,
-                    train_len=None, uni_ocm=None, V=None):
-    if not unigrams:
-        unigrams = self.unigrams
-        train_len = self.train_len
-
+def calculate_perplexity(tokens, probs):
     entropy = 0.0
-    if gts:
-        if not uni_ocm:
-            uni_ocm = self.uni_ocm
-        thresh = self.threshold
-        for token in tokens:
-            entropy -= log10(unigrams.get(token, uni_ocm[thresh] /
-                                                 train_len))
-    else:
-        if not V:
-            V = self.types
-        alpha = self.alpha
-        for token in tokens:
-            entropy -= log10(unigrams.get(token, alpha / (train_len+V)))
+    for token in tokens:
+        # please comment this line after implementing smooth method
+        if probs.get(token[0:len(token)-1]) is not None and probs.get(token[0:len(token)-1]).get(token[len(token)-1]) is not None:
+            print token
+            entropy -= log10(probs.get(token[0:len(token)-1]).get(token[len(token)-1]))
 
-    return 10**(entropy / (len(tokens) - (self.n-1)))
+    return 10**(entropy / len(tokens))
 
 #here we make sure the user provides a training filename when
 #calling this program, otherwise exit with a usage error.
@@ -128,10 +115,20 @@ elif mode == 'test':
     if len(sys.argv) != 4:
         print "Usage: ", sys.argv[0], "<mode> <model_file> <testing_file>"
         sys.exit(0)
+    
     testfile = sys.argv[3]
-    with open(infile) as tweetfile:
-        conditionProbs = json.load(tweetfile)
+    wordlist = []
 
+    with open(infile) as f:
+        conditionProbs = json.load(f)
+    with open(testfile) as f:
+        for line in f:
+            line = preprocess_line(line) #doesn't do anything yet.
+            #our model unit is a line instead of sentence
+            for j in range(len(line)-(2)):
+                wordlist.append(line[j:j+3])
+    print "Perplexity of the testing data based on the input model:"      
+    print calculate_perplexity(wordlist, conditionProbs);
 else:
     print "Running mode should be either <train> or <test>";
 
