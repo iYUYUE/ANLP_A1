@@ -47,11 +47,11 @@ def generate_random_output(distribution, N):
     #modified the dictionary in between calling them.
     output = '';
     for i in range(1, N):
-        if len(output)<2 or (output[-1:] is ']'):
+        if len(output) < n-1 or (output[-1:] is ']'):
             output += '[['
             continue
-        outcomes = np.array(distribution[output[-2:]].keys())
-        probs = np.array(distribution[output[-2:]].values())
+        outcomes = np.array(distribution[output[-(n-1):]].keys())
+        probs = np.array(distribution[output[-(n-1):]].values())
         #make an array with the cumulative sum of probabilities at each
         #index (ie prob. mass func)
         bins = np.cumsum(probs)
@@ -60,19 +60,19 @@ def generate_random_output(distribution, N):
         #return the sequence of outcomes associated with that sequence of bins
         #(we convert it from array back to list first)
         output += outcomes[np.digitize(random_sample(1), bins)][0]
-        
+
     p = re.compile('[\[]')
     return re.sub('\]','\n',re.sub(p,'',output))
 
-def calculate_perplexity(tokens, probs):
+def calculate_perplexity(tokens, probs, n):
     entropy = 0.0
     for token in tokens:
         # please comment this line after implementing smooth method
-        if probs.get(token[0:len(token)-1]) is not None and probs.get(token[0:len(token)-1]).get(token[len(token)-1]) is not None:
+        # if probs.get(token[0:len(token)-1]) is not None and probs.get(token[0:len(token)-1]).get(token[len(token)-1]) is not None:
           #  print token
             entropy -= log10(probs.get(token[0:len(token)-1]).get(token[len(token)-1]))
 
-    return 10**(entropy / len(tokens))
+    return 10**(entropy / (len(tokens) - (n-1)))
 
 #here we make sure the user provides a training filename when
 #calling this program, otherwise exit with a usage error.
@@ -92,11 +92,11 @@ if mode == 'train':
         for line in f:
             line = preprocess_line(line) #doesn't do anything yet.
             #our model unit is a line instead of sentence
-            for j in range(len(line)-(2)):
-                trigram = line[j:j+3]
+            for j in range(len(line)-(n-1)):
+                trigram = line[j:j+n]
                 tri_counts[trigram] += 1
     for trigram in tri_counts.keys():
-        pairsCounts[trigram[0:2]] +=  tri_counts[trigram]
+        pairsCounts[trigram[0:n-1]] +=  tri_counts[trigram]
     for i in '[0qwertyuiopasdfghjklzxcvbnm .,': 
         for j in '[0qwertyuiopasdfghjklzxcvbnm .,':   
             pairsCounts[i+j] +=  smooth*ntypes
@@ -106,7 +106,7 @@ if mode == 'train':
             conditionProbs[i+j]  = prob 
             
     for trigram in tri_counts.keys():
-        conditionProbs[trigram[0:2]][trigram[2:3]] +=  tri_counts[trigram]/pairsCounts[trigram[0:2]]
+        conditionProbs[trigram[0:n-1]][trigram[n-1]] +=  tri_counts[trigram]/pairsCounts[trigram[0:n-1]]
     condition = 'an'
     print "Conditional probability for "+condition
     for p in sorted(conditionProbs[condition].keys()):
@@ -133,10 +133,10 @@ elif mode == 'test':
         for line in f:
             line = preprocess_line(line) #doesn't do anything yet.
             #our model unit is a line instead of sentence
-            for j in range(len(line)-(2)):
-                wordlist.append(line[j:j+3])
+            for j in range(len(line)-(n-1)):
+                wordlist.append(line[j:j+n])
     print "Perplexity of the testing data based on the input model:"      
-    print calculate_perplexity(wordlist, conditionProbs);
+    print calculate_perplexity(wordlist, conditionProbs, n);
 else:
     print "Running mode should be either <train> or <test>";
 
