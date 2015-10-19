@@ -13,7 +13,7 @@ from numpy.random import random_sample
 tri_counts=defaultdict(int) #counts of all trigrams in input
 uni_counts=defaultdict(int) #counts of all trigrams in input
 bi_counts=defaultdict(int) #counts of all trigrams in input
-n = 1 #ngram model
+n = 3 #ngram model
 smooth = .1 #smooth parameter
 nrange = '0qwertyuiopasdfghjklzxcvbnm ].,'
 ntypes = len(nrange)
@@ -50,7 +50,8 @@ def generate_random_output(distribution, N):
     output = '';
     for i in range(1, N):
         if len(output) < n-1 or (output[-1:] is ']'):
-            output += '['
+            for i in range(1, n):
+                output += '['
             continue 
         
         if n == 1:
@@ -80,7 +81,7 @@ def initialConditions(str, n):
         prob = defaultdict(float)
         for k in nrange:
             prob[k] =  smooth/pairsCounts[str]
-            conditionProbs[str]  = prob
+        conditionProbs[str]  = prob
     else:
         for i in nrange: 
                initialConditions(str+i, n-1)
@@ -124,6 +125,9 @@ if mode == 'train':
     initialConditions('', n)
     
     for trigram in tri_counts.keys():
+        print trigram 
+        print conditionProbs[trigram[0:n-1]]
+        print "%f" % (conditionProbs[trigram[0:n-1]][trigram[n-1]]) + "/" + "%f" % (tri_counts[trigram]/pairsCounts[trigram[0:n-1]])
         conditionProbs[trigram[0:n-1]][trigram[n-1]] +=  tri_counts[trigram]/pairsCounts[trigram[0:n-1]]
 
     print conditionProbs
