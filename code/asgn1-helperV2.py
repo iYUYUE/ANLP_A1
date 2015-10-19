@@ -59,16 +59,10 @@ def generate_random_output(distribution, N):
         #digitize tells us which bin they fall into.
         #return the sequence of outcomes associated with that sequence of bins
         #(we convert it from array back to list first)
-<<<<<<< HEAD
-        output += outcomes[np.digitize(random_sample(1)[0], bins)]
-    p = re.compile('[\[\]]')
-    return re.sub(p,'',output)
-=======
         output += outcomes[np.digitize(random_sample(1), bins)][0]
+        
     p = re.compile('[\[]')
     return re.sub('\]','\n',re.sub(p,'',output))
->>>>>>> bdd9f760d31dcd33802074bd725151236742938c
-
 
 def calculate_perplexity(tokens, probs):
     entropy = 0.0
