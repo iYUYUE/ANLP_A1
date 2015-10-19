@@ -69,7 +69,7 @@ showstringspaces=false            %
 \usepackage{graphicx} % Required for the inclusion of images
 \usepackage{natbib} % Required to change bibliography style to APA
 \usepackage{amsmath} % Required for some math elements 
-
+\usepackage{diagbox}
 \setlength\parindent{0pt} % Removes all indentation from paragraphs
 
 \renewcommand{\labelenumi}{\alph{enumi}.} % Make numbering in the enumerate environment by letter rather than number (e.g. section 6)
@@ -277,6 +277,20 @@ aanten su en nue lta y
 %	SECTION 5
 %----------------------------------------------------------------------------------------	
 \section{Perplexity \& Language Identification}
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|l|l|l|l|}\hline
+		\diagbox[width=10em]{\\Language}{\\Model}&
+		Unigram & Bigram  & Trigram \\ \hline
+		English & 19.4157 & 11.5054 & 9.2210 \\ \hline
+		German  & 21.3752 & 21.4868 & 30.1338 \\ \hline
+		Spanish & 22.4430 & 24.7187 & 29.5903 \\ \hline
+	\end{tabular}
+	\caption{Perplexity of Testing Dataset}\label{tab:perplexity}
+\end{table}
+
+The results given in Table~\ref{tab:perplexity} suggest that the testing dataset shows the lowest perplexity under the trigram model of English. Therefore, the testing sample is most likely to be identified as English texts. In addition, as the training model become simpler (from trigram to unigram) the margins among the results under different language models become smaller. Consequently it will be harder to tell which language the testing sample belongs to although, in this case, the performance of the testing dataset under English language model is still better than the results under other language models.
 
 %-----------------------
 %	EXAMPLE CODE

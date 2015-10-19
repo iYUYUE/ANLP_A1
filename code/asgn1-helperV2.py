@@ -13,7 +13,7 @@ from numpy.random import random_sample
 tri_counts=defaultdict(int) #counts of all trigrams in input
 uni_counts=defaultdict(int) #counts of all trigrams in input
 bi_counts=defaultdict(int) #counts of all trigrams in input
-n = 3 #ngram model
+n = 1 #ngram model
 smooth = .1 #smooth parameter
 ntypes = len('0qwertyuiopasdfghjklzxcvbnm ].,')
 pairsCounts = defaultdict(float)
