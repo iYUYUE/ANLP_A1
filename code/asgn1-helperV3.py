@@ -3,7 +3,6 @@ from __future__ import division
 import re
 import collections
 import sys
-from array import *
 import json
 from random import random
 from math import log, log10
@@ -12,16 +11,13 @@ import numpy as np #numpy provides useful maths and vector operations
 from numpy.random import random_sample
 
 
-tri_counts=defaultdict(int) #counts of all trigrams in input
-uni_counts=defaultdict(int) #counts of all trigrams in input
-bi_counts=defaultdict(int) #counts of all trigrams in input
-n = 3 #ngram model
+n = 3 #n for ngram
+lambdas = [0.1, 0.2 ,.7] #interpolation parameter from unigram to ngram
 smooth = .1 #smooth parameter
-conditionString = '[0qwertyuiopasdfghjklzxcvbnm .,'
-outputString = '0qwertyuiopasdfghjklzxcvbnm ].,'
-ntypes = len(outputString)
-pairsCounts = defaultdict(float)
-conditionProbs = collections.defaultdict(dict)
+ngramConditionProbs = collections.defaultdict(dict) #collection of ngram model
+ngramCounts = defaultdict(float) #collection of counts
+conditionProbs = collections.defaultdict(dict) #final ngram model
+ntypes = len('0qwertyuiopasdfghjklzxcvbnm ].,')
 #function turns input into required format
 def preprocess_line(line):
     #remove non-necessary characters, 
@@ -33,7 +29,9 @@ def preprocess_line(line):
     #turn numbers into 0
     line = re.sub('[0-9]','0',line)
     #add begining and end [[
-    return '[['+line
+    for i in range(1, n):
+        line = '['+line
+    return line
 
 # this function generate random output from the estimated language models.
 def generate_random_output(distribution, N):
@@ -50,11 +48,19 @@ def generate_random_output(distribution, N):
     #modified the dictionary in between calling them.
     output = '';
     for i in range(1, N):
-        if len(output)<2 or (output[-1:] is ']'):
-            output += '[['
-            continue
-        outcomes = np.array(distribution[output[-2:]].keys())
-        probs = np.array(distribution[output[-2:]].values())
+        if len(output) < n-1 or (output[-1:] is ']'):
+            for i in range(1, n):
+                output += '['
+            continue 
+        
+        if n == 1:
+            nextIndex = ''
+        else:
+            nextIndex = output[-(n-1):]
+
+        outcomes = np.array(distribution[nextIndex].keys())
+        probs = np.array(distribution[nextIndex].values())
+        # print probs
         #make an array with the cumulative sum of probabilities at each
         #index (ie prob. mass func)
         bins = np.cumsum(probs)
@@ -63,36 +69,45 @@ def generate_random_output(distribution, N):
         #return the sequence of outcomes associated with that sequence of bins
         #(we convert it from array back to list first)
         output += outcomes[np.digitize(random_sample(1), bins)][0]
+
     p = re.compile('[\[]')
     return re.sub('\]','\n',re.sub(p,'',output))
 
 
-def calculate_perplexity(tokens, probs):
+def initialConditions(str, n):
+    if n == 1:
+        ngramCounts[str] +=  smooth*ntypes
+        prob = defaultdict(float)
+        for k in '0qwertyuiopasdfghjklzxcvbnm ].,':
+            prob[k] =  smooth/ngramCounts[str]
+        ngramConditionProbs[str]  = prob
+    else:
+        for i in '[0qwertyuiopasdfghjklzxcvbnm .,': 
+               initialConditions(str+i, n-1)
+                                   
+#do interpolation of probability, given manuel selected parameter
+def readjustProbability(str, n,N):
+    if n == 1:
+        for k in '0qwertyuiopasdfghjklzxcvbnm ].,':
+            conditionProbs[str][k] = lambdas[0]*ngramConditionProbs[''][k]
+            for i in range(N-1):
+                conditionProbs[str][k] += lambdas[i+1]*ngramConditionProbs[str[-i+1:]][k]
+      #      print conditionProbs[str][k]
+    else:
+        for i in '[0qwertyuiopasdfghjklzxcvbnm .,': 
+               readjustProbability(str+i, n-1,N)
+
+                                   
+def calculate_perplexity(tokens, probs, n):
     entropy = 0.0
     for token in tokens:
         # please comment this line after implementing smooth method
-        if probs.get(token[0:len(token)-1]) is not None and probs.get(token[0:len(token)-1]).get(token[len(token)-1]) is not None:
-         #   print token
+        # if probs.get(token[0:len(token)-1]) is not None and probs.get(token[0:len(token)-1]).get(token[len(token)-1]) is not None:
+          #  print token
             entropy -= log10(probs.get(token[0:len(token)-1]).get(token[len(token)-1]))
 
     return 10**(entropy / len(tokens))
-def initialConditions(n):
-    for trigram in tri_counts.keys():
-        pairsCounts[trigram[0:2]] +=  tri_counts[trigram]
-    condition = array('c', range(n-1))
-    for i in range(n-1):
-        for c in '[0qwertyuiopasdfghjklzxcvbnm .,':
-            c
-    for i in conditionString: 
-        for j in outputString:   
-            pairsCounts[i+j] +=  smooth*ntypes
-            prob = defaultdict(float)
-            for k in '0qwertyuiopasdfghjklzxcvbnm ].,':
-                prob[k] =  smooth/pairsCounts[i+j]
-            conditionProbs[i+j]  = prob 
-            
-    for trigram in tri_counts.keys():
-        conditionProbs[trigram[0:2]][trigram[2:3]] +=  tri_counts[trigram]/pairsCounts[trigram[0:2]]
+
 #here we make sure the user provides a training filename when
 #calling this program, otherwise exit with a usage error.
 
@@ -111,16 +126,34 @@ if mode == 'train':
         for line in f:
             line = preprocess_line(line) #doesn't do anything yet.
             #our model unit is a line instead of sentence
-            for j in range(len(line)-(2)):
-                trigram = line[j:j+3]
-                tri_counts[trigram] += 1
-    initialConditions(n)
+            for j in range(len(line)-(n-1)):
+                for i in range(n):
+                    ngram = line[j+n-i-1:j+n]
+                    ngramCounts[ngram] +=1
+    for c in '0qwertyuiopasdfghjklzxcvbnm ].,':
+        ngramCounts[''] += ngramCounts[c]
+    for i in range(n):
+        initialConditions('', i+1)
+
+   # print conditionProbs
+            
+    for ngram in ngramCounts.keys():
+        if ngram is not '': 
+            ngramConditionProbs[ngram[0:-1]][ngram[-1]] +=  ngramCounts[ngram]/ngramCounts[ngram[0:-1]]
+            
+    
+    readjustProbability('',n,n)
         
-    json.dump(conditionProbs, open(sys.argv[2]+'.out3','w'))
+    condition = 'an'
+    print "Conditional probability for "+condition
+    for p in sorted(conditionProbs[condition].keys()):
+        print 'P('+p+'|'+condition+')='+str(conditionProbs[condition][p])
+        
+    json.dump(conditionProbs, open(infile+'.out','w'))
 
     print "\nRandom Text"
     random = generate_random_output(conditionProbs, 300)
-    with open(sys.argv[2]+'.random3', "w") as text_file:
+    with open(infile+'.random', "w") as text_file:
         text_file.write(random)
     print random
 elif mode == 'test':
@@ -131,16 +164,19 @@ elif mode == 'test':
     testfile = sys.argv[3]
     wordlist = []
 
-    with open(sys.argv[2]+'.out3') as f:
+    with open(infile) as f:
         conditionProbs = json.load(f)
-    with open(sys.argv[3]) as f:
+    # redifine n-gram model
+    n = len(conditionProbs.keys()[0]) + 1
+    
+    with open(testfile) as f:
         for line in f:
             line = preprocess_line(line) #doesn't do anything yet.
             #our model unit is a line instead of sentence
-            for j in range(len(line)-(2)):
-                wordlist.append(line[j:j+3])
+            for j in range(len(line)-(n-1)):
+                wordlist.append(line[j:j+n])
     print "Perplexity of the testing data based on the input model:"      
-    print calculate_perplexity(wordlist, conditionProbs);
+    print calculate_perplexity(wordlist, conditionProbs, n);
 else:
     print "Running mode should be either <train> or <test>";
 
